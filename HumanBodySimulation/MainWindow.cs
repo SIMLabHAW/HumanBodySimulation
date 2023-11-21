@@ -18,11 +18,14 @@ namespace HumanBodySimulation
         public MainWindow()
         {
             InitializeComponent();
+
+            initializeOrgans();
         }
 
         public void initializeOrgans()
         {
             // Add Organs here
+            organs.Add(new Lung());
 
             foreach(IOrgan organ in organs)
             {
