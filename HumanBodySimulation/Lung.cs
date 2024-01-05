@@ -52,10 +52,10 @@ namespace HumanBodySimulation
         public void init(Dictionary<string, string> parameters)
         {
             parameters["sauerstoffgehalt"] = "21.0"; // in Prozent
-            double co2gehalt = 0.04; // in Prozent
-            double atmungsfrequenz = 12.0; // Atemzüge pro Minute
-            double tidalvolumen = 0.5; //  Liter pro Atemzug
-            double lungenvolumen = 6.0; // Gesamtvolumen Lunge in Litern
+            parameters["co2gehalt"] = "0.04"; // in Prozent
+            parameters["atmungsfrequenz"] = "12.0"; // Atemzüge pro Minute
+            parameters["tidalvolumen"] = "0.5"; //  Liter pro Atemzug
+            parameters["lungenvolumen"] = "6.0"; // Gesamtvolumen Lunge in Litern
 
         }
         public void update(int n, Dictionary<string, string> parameters)
