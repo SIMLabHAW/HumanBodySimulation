@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\HumanBodySimulation"
   ],
-  "SelectedNode": "\\HumanBodySimulation.sln",
+  "SelectedNode": "\\HumanBodySimulation\\Lung.cs",
   "PreviewInSolutionExplorer": false
 }
