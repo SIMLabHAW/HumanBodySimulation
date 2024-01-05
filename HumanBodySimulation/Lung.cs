@@ -60,8 +60,7 @@ namespace HumanBodySimulation
         }
         public void update(int n, Dictionary<string, string> parameters)
         {
-            //update kommentar commit test.....
-            int i =0;
+
 
         }
     }
