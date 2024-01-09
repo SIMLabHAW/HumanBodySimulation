@@ -48,7 +48,7 @@ namespace HumanBodySimulation
             parameters["co2gehalt"] = "0.04"; // in Prozent
             parameters["atmungsfrequenz"] = "12.0"; // Atemzüge pro Minute
             parameters["tidalvolumen"] = "0.5"; //  Liter pro Atemzug
-            parameters["lungenvolumen"] = "6.0"; // Gesamtvolumen Lunge in Litern
+            parameters["lungenvolumen"] = "4.5"; // Gesamtvolumen Lunge in Litern
 
         }
         public void update(int n, Dictionary<string, string> parameters)
