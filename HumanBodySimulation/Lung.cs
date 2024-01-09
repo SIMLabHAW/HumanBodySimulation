@@ -11,27 +11,7 @@ namespace HumanBodySimulation
     {
         public Lung()
         {
-            // Parameter
-            double sauerstoffgehalt = 21.0; // in Prozent
-            double co2gehalt = 0.04; // in Prozent
-            double atmungsfrequenz = 12.0; // Atemzüge pro Minute
-            double tidalvolumen = 0.5; //  Liter pro Atemzug
-            double lungenvolumen = 6.0; // Gesamtvolumen Lunge in Litern
-                                        
-
-            for (int atemzug = 1; atemzug <= 2; atemzug++) // Atemperiode = 2 Atemzüge (Einatmen + Ausatmen)
-            {
-                // Sauerstoffaufnahme
-                double sauerstoffaufnahme = BerechneSauerstoffaufnahme(sauerstoffgehalt, tidalvolumen, atmungsfrequenz);
-                // Luftstrom
-                double luftstrom = BerechneLuftstrom(tidalvolumen, atmungsfrequenz);
-                // CO2-Abgabe
-                double co2abgabe = BerechneCO2Abgabe(co2gehalt, tidalvolumen, atmungsfrequenz);
-                // Simulationsergebnisse
-                Console.WriteLine($"Atemzug {atemzug}: Sauerstoffaufnahme = {sauerstoffaufnahme} L/min, Luftstrom = {luftstrom} L/min, CO2-Abgabe = {co2abgabe} L/min");
-                // Wartezeit zwischen Atemzügen
-                System.Threading.Thread.Sleep(1000 / (int)atmungsfrequenz * 60);
-            }
+            
         }
         static double BerechneSauerstoffaufnahme(double sauerstoffgehalt, double tidalvolumen, double atmungsfrequenz)
         {
@@ -60,7 +40,27 @@ namespace HumanBodySimulation
         }
         public void update(int n, Dictionary<string, string> parameters)
         {
+            // Parameter
+            double sauerstoffgehalt = double.Parse(parameters["sauerstoffgehalt"]); // in Prozent
+            double co2gehalt = double.Parse(parameters["co2gehalt"]); // in Prozent
+            double atmungsfrequenz = double.Parse(parameters["atmungsfrequenz"]); // Atemzüge pro Minute
+            double tidalvolumen = double.Parse(parameters["tidalvolumen"]); //  Liter pro Atemzug
+            double lungenvolumen = double.Parse(parameters["lungenvolumen"]); // Gesamtvolumen Lunge in Litern
 
+
+            for (int atemzug = 1; atemzug <= 2; atemzug++) // Atemperiode = 2 Atemzüge (Einatmen + Ausatmen)
+            {
+                // Sauerstoffaufnahme
+                double sauerstoffaufnahme = BerechneSauerstoffaufnahme(sauerstoffgehalt, tidalvolumen, atmungsfrequenz);
+                // Luftstrom
+                double luftstrom = BerechneLuftstrom(tidalvolumen, atmungsfrequenz);
+                // CO2-Abgabe
+                double co2abgabe = BerechneCO2Abgabe(co2gehalt, tidalvolumen, atmungsfrequenz);
+                // Simulationsergebnisse
+                Console.WriteLine($"Atemzug {atemzug}: Sauerstoffaufnahme = {sauerstoffaufnahme} L/min, Luftstrom = {luftstrom} L/min, CO2-Abgabe = {co2abgabe} L/min");
+                // Wartezeit zwischen Atemzügen
+                System.Threading.Thread.Sleep(1000 / (int)atmungsfrequenz * 60);
+            }
 
         }
     }
