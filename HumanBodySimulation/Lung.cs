@@ -13,33 +13,36 @@ namespace HumanBodySimulation
         {
             
         }
-        static double BerechneSauerstoffaufnahme(double sauerstoffgehalt, double tidalvolumen, double atmungsfrequenz)
+        static int step=100; //zeitvariable für alle Funktionen 
+
+        static double setco2gehalt( double co2alt)
         {
-            // Sauerstoffaufnahme pro Minute
-            return sauerstoffgehalt / 100.0 * tidalvolumen * atmungsfrequenz;
+            //CO2 Partialdruck nach Ablauf der 100ms
+            return step * 2 + co2alt; //Wert zwei zu Konstante ändern!
         }
+        static double Atmungsfrequenz(double co2gehalt )
+        {
+              //proportional
+              return 0;
+        }
+
         static double BerechneLuftstrom(double tidalvolumen, double atmungsfrequenz)
         {
             // Luftstrom pro Minute
             return tidalvolumen * atmungsfrequenz;
         }
+
         static double BerechneCO2Abgabe(double co2gehalt, double tidalvolumen, double atmungsfrequenz)
         {
             // CO2-Abgabe pro Minute
             return co2gehalt / 100.0 * tidalvolumen * atmungsfrequenz;
         }
 
-        static double setco2gehalt( double co2alt)
+             
+        static double BerechneSauerstoffaufnahme(double sauerstoffgehalt, double tidalvolumen, double atmungsfrequenz)
         {
-            //CO2 Gehalt nach Ablauf der 100ms
-            return 100 * 2 + co2alt; //Wert zwei zu Konstante ändern!
-        }
-
-        static double Atmungsfrequenz(double co2gehalt )
-        {
-
-            return 0;
-
+            // Sauerstoffaufnahme pro Minute
+            return sauerstoffgehalt / 100.0 * tidalvolumen * atmungsfrequenz;
         }
 
         public void init(Dictionary<string, string> parameters)
@@ -60,9 +63,9 @@ namespace HumanBodySimulation
             double tidalvolumen = double.Parse(parameters["tidalvolumen"]); //  Liter pro Atemzug
             double lungenvolumen = double.Parse(parameters["lungenvolumen"]); // Gesamtvolumen Lunge in Litern
 
-            int tick = n / 100; // das muss abgerundet werden
+            int tick = n / step; // das muss abgerundet werden
 
-            for(int i = 0; i< tick; i++)
+            for(int i = 0; i<= tick; i++)
             {
                 double co2neu = setco2gehalt( co2gehalt);
                 double atemfrequenz = Atmungsfrequenz(co2neu);
