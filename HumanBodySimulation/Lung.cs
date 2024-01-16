@@ -33,14 +33,17 @@ namespace HumanBodySimulation
             return (int)(baselinefrequency + CO2rise * (paCO2 - 40));
         }
 
-        static double BerechneSauerstoffaufnahme(double sauerstoffgehalt, double tidalvolumen, double atmungsfrequenz, double paCO2)
+        static double BerechneSauerstoffaufnahme(double sauerstoffgehalt, double tidalvolumen, double f_breath, double paCO2)
         {
-            // Sauerstoffaufnahme pro Minute
-            int RQ = 0.95; 
-            int pa_inspO2=160; //mmHg Umgebungsluft
-            return pa_inspO2 - paCO2/RQ; // pa_alv_O2
+            double VO2=3,6/f_breath// Sauerstoffaufnahme pro Minute
 
             return sauerstoffgehalt / 100.0 * tidalvolumen * atmungsfrequenz;
+
+            /*int RQ = 0.9; //Verhältnis von aufgenommenen O2 zu abgegebenem CO2 in l/min
+            int pa_inspO2=160; //mmHg Umgebungsluft
+            return pa_inspO2 - paCO2/RQ; // pa_alv_O2*/
+
+            
         }
 
         static double BerechneCO2Abgabe(double co2gehalt, double tidalvolumen, double atmungsfrequenz)
