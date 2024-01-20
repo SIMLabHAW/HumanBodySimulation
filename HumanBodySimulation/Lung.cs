@@ -135,7 +135,7 @@ namespace HumanBodySimulation
 
         public void init(Dictionary<string, string> parameters)
         {
-            parameters['time_next_breath'] = '5000';                // time to next breathing event in ms ->updated by us
+            parameters["time_next_breath"] = "5000';                // time to next breathing event in ms ->updated by us
             parameters['time_contact'] = '1000';                    // contct time between blood and lung in ms -> depends on heartbeat
 
             parameters["pa_o2_insp"] = "160";                       // partialpressure oxygen in inspiratory gas, in mmHg -> constant sorrounding air
@@ -185,7 +185,7 @@ namespace HumanBodySimulation
             double A = 100;                // contact area of blood and alveoli of healthy adult in m²
             double dx = 0.3;               // thickness of blood gas barrier healthy adult in µm
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
-
+        
 
             //check for breath, update alveolar partial pressures if breath happened, update time to next breathing event
 
