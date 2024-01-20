@@ -71,6 +71,7 @@ namespace HumanBodySimulation
             parameters["lungenvolumen"] = "4.5"; // Gesamtvolumen Lunge in Litern
 
         }
+
         public void update(int n, Dictionary<string, string> parameters)
         {
             // Parameter
@@ -145,12 +146,12 @@ namespace HumanBodySimulation
             parameters["pa_o2_alv"] = "100";                        // partialpressure oxygen in alveolar gas, in mmHg ->updated by us 
             parameters["pa_co2_alv"] = "40";                        // partialpressure Co2 in alveolar gas, in mmHg -> updated by us
 
-            parameters["pa_o2_blood_ven"] = "";                   // partialpressure O2 in venous blood in mmHg -> ths value is updated by us
-            parameters["pa_co2_blood_ven"] = "";                    // partialpressure Co2 in venous blood in mmHg -> ths value is updated by us
-            parameters["pa_o2_blood_alv"] = "40";                   // partialpressure O2 in venous blood in mmHg -> ths value is updated by us
-            parameters["pa_co2_blood_alv"] = "46";                    // partialpressure Co2 in venous blood in mmHg -> ths value is updated by us
-            parameters["pa_o2_blood_art"] = "40";                  // partialpressure O2 in arterial blood low o2-> ths value is updated by other organs
-            parameters["pa_co2_blood_art"] = "46";                  // partialpressure Co2 in arterial blood high co2 -> ths value is updated by other organs
+            parameters["pa_o2_blood_ven"] = "";                   // partialpressure O2 in venous blood in mmHg -> this value is updated by us
+            parameters["pa_co2_blood_ven"] = "";                    // partialpressure Co2 in venous blood in mmHg -> this value is updated by us
+            parameters["pa_o2_blood_alv"] = "40";                   // partialpressure O2 in venous blood in mmHg -> this value is updated by us
+            parameters["pa_co2_blood_alv"] = "46";                    // partialpressure Co2 in venous blood in mmHg -> this value is updated by us
+            parameters["pa_o2_blood_art"] = "40";                  // partialpressure O2 in arterial blood low o2-> this value is updated by other organs
+            parameters["pa_co2_blood_art"] = "46";                  // partialpressure Co2 in arterial blood high co2 -> this value is updated by other organs
 
             parameters["breathing_frequency"] = "12.0";             // baseline breathing frequency in 1/min -> updated by us
             parameters["tidalvolume"] = "0.35";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
@@ -196,12 +197,11 @@ namespace HumanBodySimulation
                 time_next_breath = 5000; // ToDO implement breathing frequency / updated breathing frequency -> new time according to our calc
 
                 pa_o2_alv = set_pa_O2_alv_breath(tidalvolume, residual_functional_volume, pa_o2_alv, pa_o2_insp);
-                pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_Co2_alv, pa_Co2_insp);
-
+                pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
             }
 
 
-            //check for blood exchange, update partial pressures for blodd in lung if heartbeat happened, update time to next heartbeat
+            //check for blood exchange, update partial pressures for blood in lung if heartbeat happened, update time to next heartbeat
 
             time_contact = time_contact - n;
 
@@ -224,8 +224,8 @@ namespace HumanBodySimulation
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
-            double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges);
-            pa_o2_alv = (pa_o2_alv * o2_volume_alv / (o2_volume_alv - exchanged_volume_o2));
+            double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges); //V1
+            pa_o2_alv = (pa_o2_alv * o2_volume_alv / (o2_volume_alv - exchanged_volume_o2));  //p2=p1*V1/V2
 
 
 
