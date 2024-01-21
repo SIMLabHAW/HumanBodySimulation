@@ -111,9 +111,9 @@ using System.Threading.Tasks;
 
 namespace HumanBodySimulation
 {
-    internal class Lung2 : IOrgan
+    internal class Lung : IOrgan
     {
-        public Lung2()
+        public Lung()
         {
 
         }
