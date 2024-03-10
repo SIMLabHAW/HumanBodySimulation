@@ -184,7 +184,7 @@ namespace HumanBodySimulation
 
             //double D = numeric value here; // diffusion constant of oxygen/ co2 -> research pls
             double A = 100;                // contact area of blood and alveoli of healthy adult in m²
-            double dx = 0.3;               // thickness of blood gas barrier healthy adult in µm
+            double dx = 0.3*0.000001;               // thickness of blood gas barrier healthy adult in µm
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
         
 
@@ -236,6 +236,8 @@ namespace HumanBodySimulation
 
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
+
+            //validation --> plot values
 
 
             return;
