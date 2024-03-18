@@ -104,10 +104,12 @@ namespace HumanBodySimulation
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace HumanBodySimulation
 {
@@ -220,9 +222,9 @@ namespace HumanBodySimulation
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
-
-            double exchanged_volume_o2 = abs((-D * A * (pa_o2_alv - pa_o2_blood_alv) / dx) * n);       //volume flow -> in m³ (*n / 1000 to equalize times) of O2 and Co2
-            double exchanged_volume_co2 = abs((-D * A * (pa_co2_alv - pa_co2_blood_alv) / dx) * n);
+            double D = 10; // ??? Define a proper value for D
+            double exchanged_volume_o2 = Math.Abs((-D * A * (pa_o2_alv - pa_o2_blood_alv) / dx) * n);       //volume flow -> in m³ (*n / 1000 to equalize times) of O2 and Co2
+            double exchanged_volume_co2 = Math.Abs((-D * A * (pa_co2_alv - pa_co2_blood_alv) / dx) * n);
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -236,10 +238,9 @@ namespace HumanBodySimulation
 
             //ToDO calculate haemoglobin saturation -> s curve describes connection between partial pressure
             double n_haemo = 2.8; //Hill coefficient for haemoglobin
-            double k_d = 28; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation
+            double k_d = 28; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
             double PAO2n = Math.Pow(pa_o2_alv, n_haemo); //must be in mmHg
             double k_d_n = Math.Pow(k_d, n_haemo);
-
             double SPO2 = PAO2n / (k_d_n + PAO2n);
             int SPO2Percent = (int) Math.Round(SPO2*100);
          
@@ -250,7 +251,45 @@ namespace HumanBodySimulation
 
             //validation --> plot values
 
+            //--------Plotting Attemp1-------------------------------------------
 
+            foreach (var kvp in parameters)
+            {
+                string timePointString = kvp.Key;
+                string valueString = kvp.Value;
+
+                // Versuchen Sie, die Zeichenfolgen in numerische Werte umzuwandeln
+                if (double.TryParse(timePointString, out double timePoint) &&
+                    double.TryParse(valueString, out double value))
+                {
+                    // Annahme: Zeitpunkt (Tick) als X-Wert, Simulationsergebnis (z.B. SPO2) als Y-Wert
+
+                    //chart1.Series["SPO2"].Points.AddXY(timePoint, value);
+                }
+                else
+                {
+                    // Fehlerbehandlung, falls die Zeichenfolgen nicht in numerische Werte umgewandelt werden können
+                    Console.WriteLine($"Ungültige Werte: Zeitpunkt: {timePointString}, Wert: {valueString}");
+                }
+            }
+            /*
+            chart1.Series["Simulationsergebnis"].ChartType = SeriesChartType.Line;
+            chart1.ChartAreas[0].AxisX.Title = "Zeitpunkt";
+            chart1.ChartAreas[0].AxisY.Title = "Simulationsergebnis";
+            */
+
+            //-------------------------Plotting Attempt2----------------------
+            string csvFilePath = "lungensimulation.csv";
+
+            using (StreamWriter writer = new StreamWriter(csvFilePath))
+            {
+                foreach (var kvp in parameters)
+                {
+                    string timePoint = kvp.Key;
+                    string value = kvp.Value;
+                    writer.WriteLine($"{timePoint}, {value}");
+                }
+            }
             return;
         }
     }
