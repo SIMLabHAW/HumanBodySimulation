@@ -159,6 +159,8 @@ namespace HumanBodySimulation
 
             parameters["HTV"] = "5.0";                              // heart time volume in L/min, calc from bpm and volume of heart -maybe?
 
+            parameters["SPO2"] = "97";                              //initial value in %
+
         }
         public void update(int n, Dictionary<string, string> parameters)
         {
@@ -232,10 +234,19 @@ namespace HumanBodySimulation
             //ToDo find reasonable values to insert into Ficks Law -> update of partialpressures blood and alv gas
 
 
-            //ToDO calc hemoglobin saturation -> s curve describes connection between partial pressure
+            //ToDO calculate haemoglobin saturation -> s curve describes connection between partial pressure
+            double n_haemo = 2.8; //Hill coefficient for haemoglobin
+            double k_d = 28; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation
+            double PAO2n = Math.Pow(pa_o2_alv, n_haemo); //must be in mmHg
+            double k_d_n = Math.Pow(k_d, n_haemo);
 
+            double SPO2 = PAO2n / (k_d_n + PAO2n);
+            int SPO2Percent = (int) Math.Round(SPO2*100);
+         
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
+            parameters["pa_o2_alv"] = pa_co2_alv.ToString();
+            parameters["SPO2"] = SPO2Percent.ToString();
 
             //validation --> plot values
 
