@@ -111,14 +111,28 @@ using System.Text;
 using System.Threading.Tasks;
 
 
+
 namespace HumanBodySimulation
 {
+
+
     internal class Lung : IOrgan
     {
         public Lung()
         {
 
         }
+
+        public Lung(Chart chart)
+        {
+
+            this.chart = chart;
+
+        }
+
+
+        private List<double[]> simulationData = new List<double[]>();
+
 
         static double set_pa_O2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_o2, double pa_o2_insp)
         {
@@ -246,50 +260,55 @@ namespace HumanBodySimulation
          
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
-            parameters["pa_o2_alv"] = pa_co2_alv.ToString();
+            parameters["pa_o2_alv"] = pa_o2_alv.ToString();
             parameters["SPO2"] = SPO2Percent.ToString();
 
             //validation --> plot values
 
             //--------Plotting Attemp1-------------------------------------------
-
-            foreach (var kvp in parameters)
-            {
-                string timePointString = kvp.Key;
-                string valueString = kvp.Value;
-
-                // Versuchen Sie, die Zeichenfolgen in numerische Werte umzuwandeln
-                if (double.TryParse(timePointString, out double timePoint) &&
-                    double.TryParse(valueString, out double value))
-                {
-                    // Annahme: Zeitpunkt (Tick) als X-Wert, Simulationsergebnis (z.B. SPO2) als Y-Wert
-
-                    //chart1.Series["SPO2"].Points.AddXY(timePoint, value);
-                }
-                else
-                {
-                    // Fehlerbehandlung, falls die Zeichenfolgen nicht in numerische Werte umgewandelt werden können
-                    Console.WriteLine($"Ungültige Werte: Zeitpunkt: {timePointString}, Wert: {valueString}");
-                }
-            }
             /*
-            chart1.Series["Simulationsergebnis"].ChartType = SeriesChartType.Line;
-            chart1.ChartAreas[0].AxisX.Title = "Zeitpunkt";
-            chart1.ChartAreas[0].AxisY.Title = "Simulationsergebnis";
+            private void PlotParameters()
+            {
+                
+                // Löschen des vorhandenen Diagramms, um es neu zu zeichnen
+                chart.Series.Clear();
+
+                // Hinzufügen einer neuen Serie für die Parameter
+                chart.Series.Add("Parametervalues");
+
+                // Hinzufügen zum Diagramm
+                PlotPaO2ALV(double.Parse(parameters["pa_o2_alv"]));
+
+
+            }
+            
+
+            private void PlotPaO2ALV(double value)
+            {
+                // Plot des Werts
+                Chart chart = new Chart();
+                chart.ChartAreas.Add(new ChartArea());
+                chart.Series.Add("pa_o2_alv");
+                chart.Series["pa_o2_alv"].Points.AddY(value);
+                chart.Series["pa_o2_alv"].ChartType = SeriesChartType.Column;
+                chart.Series["pa_o2_alv"].Color = System.Drawing.Color.Blue;
+
+                // Anzeige des Diagramms (optional)
+                Form form = new Form();
+                form.Controls.Add(chart);
+                form.ShowDialog();
+            }
             */
 
             //-------------------------Plotting Attempt2----------------------
-            string csvFilePath = "lungensimulation.csv";
 
-            using (StreamWriter writer = new StreamWriter(csvFilePath))
+            string csvFilePath = "lungensimulation.csv";
+   
+            using (StreamWriter writer = new StreamWriter(csvFilePath, true))
             {
-                foreach (var kvp in parameters)
-                {
-                    string timePoint = kvp.Key;
-                    string value = kvp.Value;
-                    writer.WriteLine($"{timePoint}, {value}");
-                }
+                writer.WriteLine(parameters["SPO2"]);
             }
+                       
             return;
         }
     }
