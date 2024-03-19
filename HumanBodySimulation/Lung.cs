@@ -123,13 +123,6 @@ namespace HumanBodySimulation
 
         }
 
-        public Lung(Chart chart)
-        {
-
-            this.chart = chart;
-
-        }
-
 
         private List<double[]> simulationData = new List<double[]>();
 
