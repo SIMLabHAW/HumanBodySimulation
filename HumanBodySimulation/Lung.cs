@@ -95,11 +95,9 @@ namespace HumanBodySimulation
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
             double D_o2 = 0.000004167; // diffusion constant of oxygen/ co2 
             double D_co2 = 23 * D_o2;           // diffusion of Co2 ist 23 times higher 
+            double Hb = 15; // g/100 ml
 
             double exchanged_volume_o2 = 50;
-
-
-
 
 
             //check for breath, update alveolar partial pressures if breath happened, update time to next breathing event
@@ -114,12 +112,6 @@ namespace HumanBodySimulation
                 pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
             }
 
-            string csvFilePath = "D:/lungensimulation.csv";
-
-            using (StreamWriter writer = new StreamWriter(csvFilePath, true))
-            {
-                writer.WriteLine(parameters["SPO2"]);
-            }
 
             //check for blood exchange, update partial pressures for blood in lung if heartbeat happened, update time to next heartbeat
 
@@ -138,8 +130,8 @@ namespace HumanBodySimulation
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
-            exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv)/760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
-            double exchanged_volume_co2 = (D_co2 * A * (pa_co2_alv - pa_co2_blood_alv)/dx) * n / 1000;
+            exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
+            double exchanged_volume_co2 = (D_co2 * A * (pa_co2_alv - pa_co2_blood_alv) / 760/dx) * n / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -147,8 +139,12 @@ namespace HumanBodySimulation
             double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges);
             double co2_volume_alv = residual_functional_volume * (pa_co2_alv / p_ges);
 
-            double SPO2 = 0.75;
-            double Hb = 15; // g/100 ml
+            double n_haemo = 2.7; //Hill coefficient for haemoglobin
+            double k_d = 26; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
+            double PAO2n = Math.Pow(pa_o2_blood_alv, n_haemo); //must be in mmHg
+            double k_d_n = Math.Pow(k_d, n_haemo);
+            double SPO2 = PAO2n / (k_d_n + PAO2n);
+        
 
             double o2_volume_alv_blood = SPO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
@@ -163,16 +159,6 @@ namespace HumanBodySimulation
 
             pa_co2_blood_alv = Math.Exp((Math.Log(co2_volume_alv_blood - exchanged_volume_co2) - 2.38) / 0.396);
 
-
-            /*
-            //ToDO calculate haemoglobin saturation -> s curve describes connection between partial pressure
-            double n_haemo = 2.8; //Hill coefficient for haemoglobin
-            double k_d = 28; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
-            double PAO2n = Math.Pow(pa_o2_alv, n_haemo); //must be in mmHg
-            double k_d_n = Math.Pow(k_d, n_haemo);
-            double SPO2 = PAO2n / (k_d_n + PAO2n);
-            int SPO2Percent = (int) Math.Round(SPO2*100);
-            */
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
             parameters["pa_o2_alv"] = pa_o2_alv.ToString();
@@ -192,7 +178,15 @@ namespace HumanBodySimulation
             parameters["SPO2Percent"] = SPO2Percent.ToString();
             parameters["exchanged_volume_o2"] = exchanged_volume_o2.ToString();
             parameters["o2_volume_alv"] = o2_volume_alv.ToString();
+
             //validation --> plot values
+
+            string csvFilePath = "D:/LungValueValidation.csv";
+
+            using (StreamWriter writer = new StreamWriter(csvFilePath, true))
+            {
+                writer.WriteLine(parameters["SPO2Percent"]);
+            }
 
             return;
         }
