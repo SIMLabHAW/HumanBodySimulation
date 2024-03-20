@@ -61,14 +61,14 @@ namespace HumanBodySimulation
 
             parameters["HTV"] = "5.0";                              // heart time volume in L/min, calc from bpm and volume of heart -maybe?
 
-            parameters["SPO2"] = "97";                              //initial value in %
+            parameters["SPO2"] = "0.97";                              //initial value in %
             parameters["exchanged_volume_o2"] = "0";
             parameters["o2_volume_alv"] = "400";
+            parameters["SPO2Percent"] = "97";
 
         }
         public void update(int n, Dictionary<string, string> parameters)
         {
-            n = 100;
             // Parameter
             int time_next_breath = int.Parse(parameters["time_next_breath"]);
             int time_contact = int.Parse(parameters["time_contact"]);
@@ -93,7 +93,7 @@ namespace HumanBodySimulation
             double A = 70;                // contact area of blood and alveoli of healthy adult in m²
             double dx = 0.000001;               // thickness of blood gas barrier healthy adult in µm
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
-            double D_o2 = 1/240000; // diffusion constant of oxygen/ co2 
+            double D_o2 = 0.000004167; // diffusion constant of oxygen/ co2 
             double D_co2 = 23 * D_o2;           // diffusion of Co2 ist 23 times higher 
 
             double exchanged_volume_o2 = 50;
@@ -118,7 +118,7 @@ namespace HumanBodySimulation
 
             using (StreamWriter writer = new StreamWriter(csvFilePath, true))
             {
-                writer.WriteLine(parameters["o2_volume_alv"]);
+                writer.WriteLine(parameters["SPO2"]);
             }
 
             //check for blood exchange, update partial pressures for blood in lung if heartbeat happened, update time to next heartbeat
@@ -189,6 +189,7 @@ namespace HumanBodySimulation
             parameters["time_contact"] = time_contact.ToString();
 
             parameters["SPO2"] = SPO2.ToString();
+            parameters["SPO2Percent"] = SPO2Percent.ToString();
             parameters["exchanged_volume_o2"] = exchanged_volume_o2.ToString();
             parameters["o2_volume_alv"] = o2_volume_alv.ToString();
             //validation --> plot values
