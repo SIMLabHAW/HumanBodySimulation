@@ -90,7 +90,10 @@ namespace HumanBodySimulation
             double A = 100;                // contact area of blood and alveoli of healthy adult in m²
             double dx = 0.3*0.000001;               // thickness of blood gas barrier healthy adult in µm
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
-        
+            double D_O2 = 0.0416 * 0.000001; // diffusion constant of oxygen/ co2 
+            double D_Co2 = 23 * D_O2;           // diffusion of Co2 ist 23 times higher 
+
+
 
             //check for breath, update alveolar partial pressures if breath happened, update time to next breathing event
 
@@ -122,20 +125,33 @@ namespace HumanBodySimulation
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
-            double D = 10; // ??? Define a proper value for D
-            double exchanged_volume_o2 = Math.Abs((-D * A * (pa_o2_alv - pa_o2_blood_alv) / dx) * n);       //volume flow -> in m³ (*n / 1000 to equalize times) of O2 and Co2
-            double exchanged_volume_co2 = Math.Abs((-D * A * (pa_co2_alv - pa_co2_blood_alv) / dx) * n);
+            double exchanged_volume_o2 = ((D_O2 * A * (pa_o2_alv - pa_o2_blood_alv) / dx) * n) / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
+            double exchanged_volume_co2 = ((D_Co2 * A * (pa_co2_alv - pa_co2_blood_alv) / dx) * n) / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
-            double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges); //V1
-            pa_o2_alv = (pa_o2_alv * o2_volume_alv / (o2_volume_alv - exchanged_volume_o2));  //p2=p1*V1/V2
+            //determine oxygen volume in lung and blood
+            double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges);
+            double co2_volume_alv = residual_functional_volume * (pa_co2_alv / p_ges);
+
+            double SPO2 = 0.75;
+            double Hb = 15; // g/100 ml
+
+            double o2_volume_alv_blood = SPO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation
+            double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
+
+            //calc new partialpressures
+
+            pa_o2_alv = (o2_volume_alv - exchanged_volume_o2) * p_ges / residual_functional_volume;
+            pa_co2_alv = (co2_volume_alv + exchanged_volume_co2) * p_ges / residual_functional_volume;
+            SPO2 = (o2_volume_alv_blood + exchanged_volume_o2) / (Hb * 1.39);  // new oxygen saturation
+            int SPO2Percent = (int)Math.Round(SPO2 * 100);
+            pa_o2_blood_alv = 26 * Math.Pow((SPO2 / (1 - SPO2)),(1 / 2.7));
+
+            pa_co2_blood_alv = Math.Exp((Math.Log(co2_volume_alv_blood - exchanged_volume_co2) - 2.38) / 0.396);
 
 
-
-            //ToDo find reasonable values to insert into Ficks Law -> update of partialpressures blood and alv gas
-
-
+            /*
             //ToDO calculate haemoglobin saturation -> s curve describes connection between partial pressure
             double n_haemo = 2.8; //Hill coefficient for haemoglobin
             double k_d = 28; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
@@ -143,12 +159,13 @@ namespace HumanBodySimulation
             double k_d_n = Math.Pow(k_d, n_haemo);
             double SPO2 = PAO2n / (k_d_n + PAO2n);
             int SPO2Percent = (int) Math.Round(SPO2*100);
-         
+            */
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
             parameters["pa_o2_alv"] = pa_o2_alv.ToString();
             parameters["SPO2"] = SPO2Percent.ToString();
-
+            parameters["pa_co2_blood_alv"] = pa_co2_blood_alv.ToString();
+            parameters["pa_o2_blood_alv"] = pa_o2_blood_alv.ToString();
             //validation --> plot values
 
             string csvFilePath = "lungensimulation.csv";
