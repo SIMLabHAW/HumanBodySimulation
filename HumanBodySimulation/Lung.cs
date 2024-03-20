@@ -19,6 +19,15 @@ namespace HumanBodySimulation
 
         }
 
+        public double SPO2Calc(double pa_o2_blood_alv)
+        {
+            double n_haemo = 2.7; //Hill coefficient for haemoglobin
+            double k_d = 26; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
+            double PAO2n = Math.Pow(pa_o2_blood_alv, n_haemo); //must be in mmHg
+            double k_d_n = Math.Pow(k_d, n_haemo);
+            return PAO2n / (k_d_n + PAO2n);
+        }
+
 
         static double set_pa_O2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_o2, double pa_o2_insp)
         {
@@ -125,6 +134,7 @@ namespace HumanBodySimulation
                 double pa_co2_blood_ven = pa_co2_blood_alv;
                 pa_o2_blood_alv = pa_o2_blood_art;
                 pa_co2_blood_alv = pa_co2_blood_art;
+                double SPO2Heartbeat = SPO2Calc(pa_o2_blood_alv);
 
             }
 
@@ -139,14 +149,11 @@ namespace HumanBodySimulation
             double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges);
             double co2_volume_alv = residual_functional_volume * (pa_co2_alv / p_ges);
 
-            double n_haemo = 2.7; //Hill coefficient for haemoglobin
-            double k_d = 26; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
-            double PAO2n = Math.Pow(pa_o2_blood_alv, n_haemo); //must be in mmHg
-            double k_d_n = Math.Pow(k_d, n_haemo);
-            double SPO2 = PAO2n / (k_d_n + PAO2n);
+
+            double SPO2 = SPO2Calc(pa_o2_blood_alv);
         
 
-            double o2_volume_alv_blood = SPO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation
+            double o2_volume_alv_blood = SPO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
             //calc new partialpressures
@@ -176,6 +183,7 @@ namespace HumanBodySimulation
 
             parameters["SPO2"] = SPO2.ToString();
             parameters["SPO2Percent"] = SPO2Percent.ToString();
+            //parameters["SPO2Heartbeat"] = SPO2Heartbeat.ToString();
             parameters["exchanged_volume_o2"] = exchanged_volume_o2.ToString();
             parameters["o2_volume_alv"] = o2_volume_alv.ToString();
 
@@ -185,7 +193,7 @@ namespace HumanBodySimulation
 
             using (StreamWriter writer = new StreamWriter(csvFilePath, true))
             {
-                writer.WriteLine(parameters["SPO2Percent"]);
+                writer.WriteLine(parameters["SPO2Heartbeat"]);
             }
 
             return;
