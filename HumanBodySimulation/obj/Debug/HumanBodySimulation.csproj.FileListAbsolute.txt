@@ -19,3 +19,14 @@ C:\Users\anco9\Source\Repos\SIMLabHAW\HumanBodySimulation\HumanBodySimulation\ob
 C:\Users\anco9\Source\Repos\SIMLabHAW\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.csproj.CoreCompileInputs.cache
 C:\Users\anco9\Source\Repos\SIMLabHAW\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.exe
 C:\Users\anco9\Source\Repos\SIMLabHAW\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.pdb
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\bin\Debug\HumanBodySimulation.exe.config
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\bin\Debug\HumanBodySimulation.exe
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\bin\Debug\HumanBodySimulation.pdb
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.csproj.AssemblyReference.cache
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.csproj.SuggestedBindingRedirects.cache
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.MainWindow.resources
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.Properties.Resources.resources
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.csproj.GenerateResource.cache
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.csproj.CoreCompileInputs.cache
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.exe
+C:\Users\Nam Do\SVRM\HumanBodySimulation\HumanBodySimulation\obj\Debug\HumanBodySimulation.pdb

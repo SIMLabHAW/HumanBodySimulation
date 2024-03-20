@@ -56,42 +56,49 @@ namespace HumanBodySimulation
             parameters["pa_co2_blood_art"] = "46";                  // partialpressure Co2 in arterial blood high co2 -> this value is updated by other organs
 
             parameters["breathing_frequency"] = "12.0";             // baseline breathing frequency in 1/min -> updated by us
-            parameters["tidalvolume"] = "0.35";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
-            parameters["residual_functional_volume"] = "3.0";       // maximum volume of lung in liters remains in lung after breathing -> connstant for now
+            parameters["tidalvolume"] = "350";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
+            parameters["residual_functional_volume"] = "3000";       // maximum volume of lung in liters remains in lung after breathing -> connstant for now
 
             parameters["HTV"] = "5.0";                              // heart time volume in L/min, calc from bpm and volume of heart -maybe?
 
             parameters["SPO2"] = "97";                              //initial value in %
+            parameters["exchanged_volume_o2"] = "0";
+            parameters["o2_volume_alv"] = "400";
 
         }
         public void update(int n, Dictionary<string, string> parameters)
         {
+            n = 100;
             // Parameter
             int time_next_breath = int.Parse(parameters["time_next_breath"]);
             int time_contact = int.Parse(parameters["time_contact"]);
 
             double pa_o2_alv = double.Parse(parameters["pa_o2_alv"]);
-            double pa_co2_alv = double.Parse(parameters["pa_Co2_alv"]);
+            double pa_co2_alv = double.Parse(parameters["pa_co2_alv"]);
             double pa_o2_insp = double.Parse(parameters["pa_o2_insp"]);
-            double pa_Co2_insp = double.Parse(parameters["pa_Co2_insp"]);
+            double pa_Co2_insp = double.Parse(parameters["pa_co2_insp"]);
 
             double pa_o2_blood_alv = double.Parse(parameters["pa_o2_blood_alv"]);
             double pa_co2_blood_alv = double.Parse(parameters["pa_co2_blood_alv"]);
             double pa_o2_blood_art = double.Parse(parameters["pa_o2_blood_art"]);
             double pa_co2_blood_art = double.Parse(parameters["pa_co2_blood_art"]);
 
-            double pa_Co2_blood_in = double.Parse(parameters["pa_Co2"]);
+            //double pa_Co2_blood_in = double.Parse(parameters["pa_co2"]);
 
             double tidalvolume = double.Parse(parameters["tidalvolume"]);
             double residual_functional_volume = double.Parse(parameters["residual_functional_volume"]);
 
 
             //double D = numeric value here; // diffusion constant of oxygen/ co2 -> research pls
-            double A = 100;                // contact area of blood and alveoli of healthy adult in m²
-            double dx = 0.3*0.000001;               // thickness of blood gas barrier healthy adult in µm
+            double A = 70;                // contact area of blood and alveoli of healthy adult in m²
+            double dx = 0.000001;               // thickness of blood gas barrier healthy adult in µm
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
-            double D_O2 = 0.0416 * 0.000001; // diffusion constant of oxygen/ co2 
-            double D_Co2 = 23 * D_O2;           // diffusion of Co2 ist 23 times higher 
+            double D_o2 = 1/240000; // diffusion constant of oxygen/ co2 
+            double D_co2 = 23 * D_o2;           // diffusion of Co2 ist 23 times higher 
+
+            double exchanged_volume_o2 = 50;
+
+
 
 
 
@@ -107,6 +114,12 @@ namespace HumanBodySimulation
                 pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
             }
 
+            string csvFilePath = "D:/lungensimulation.csv";
+
+            using (StreamWriter writer = new StreamWriter(csvFilePath, true))
+            {
+                writer.WriteLine(parameters["o2_volume_alv"]);
+            }
 
             //check for blood exchange, update partial pressures for blood in lung if heartbeat happened, update time to next heartbeat
 
@@ -125,8 +138,8 @@ namespace HumanBodySimulation
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
-            double exchanged_volume_o2 = ((D_O2 * A * (pa_o2_alv - pa_o2_blood_alv) / dx) * n) / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
-            double exchanged_volume_co2 = ((D_Co2 * A * (pa_co2_alv - pa_co2_blood_alv) / dx) * n) / 1000;
+            exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv)/760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
+            double exchanged_volume_co2 = (D_co2 * A * (pa_co2_alv - pa_co2_blood_alv)/dx) * n / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -163,18 +176,23 @@ namespace HumanBodySimulation
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
             parameters["pa_o2_alv"] = pa_o2_alv.ToString();
-            parameters["SPO2"] = SPO2Percent.ToString();
-            parameters["pa_co2_blood_alv"] = pa_co2_blood_alv.ToString();
+            parameters["pa_co2_alv"] = pa_co2_alv.ToString();
+            parameters["pa_o2_insp"] = pa_o2_insp.ToString();
+            parameters["pa_Co2_insp"] = pa_Co2_insp.ToString();
             parameters["pa_o2_blood_alv"] = pa_o2_blood_alv.ToString();
+            parameters["pa_co2_blood_alv"] = pa_co2_blood_alv.ToString();
+            parameters["pa_o2_blood_art"] = pa_o2_blood_art.ToString();
+            parameters["pa_co2_blood_art"] = pa_co2_blood_art.ToString();
+            parameters["pa_co2_alv"] = pa_co2_alv.ToString();
+
+            parameters["time_next_breath"] = time_next_breath.ToString();
+            parameters["time_contact"] = time_contact.ToString();
+
+            parameters["SPO2"] = SPO2.ToString();
+            parameters["exchanged_volume_o2"] = exchanged_volume_o2.ToString();
+            parameters["o2_volume_alv"] = o2_volume_alv.ToString();
             //validation --> plot values
 
-            string csvFilePath = "lungensimulation.csv";
-   
-            using (StreamWriter writer = new StreamWriter(csvFilePath, true))
-            {
-                writer.WriteLine(parameters["SPO2"]);
-            }
-                       
             return;
         }
     }

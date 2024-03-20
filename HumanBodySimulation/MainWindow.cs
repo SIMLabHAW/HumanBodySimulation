@@ -14,7 +14,7 @@ namespace HumanBodySimulation
     {
         Dictionary<string, string> parameters = new Dictionary<string, string>();
         List<IOrgan> organs = new List<IOrgan>();
-        List<Heart> hearts = new List<Heart>();
+        //List<Heart> hearts = new List<Heart>();
         List<Lung> lungs = new List<Lung>();
 
         public MainWindow()
@@ -30,7 +30,7 @@ namespace HumanBodySimulation
             organs.Add(new Lung());
 
             // Added the Heart here
-            hearts.Add(new Heart());
+            //hearts.Add(new Heart());
 
          
 
