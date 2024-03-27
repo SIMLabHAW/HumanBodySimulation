@@ -56,7 +56,7 @@ namespace HumanBodySimulation
 
         public void init(Dictionary<string, string> parameters)
         {
-            parameters["time_next_breath"] = "0";                // time to next breathing event in ms ->updated by us
+            parameters["time_next_breath"] = "5000";                // time to next breathing event in ms ->updated by us
             parameters["time_contact"] = "1000";                    // contct time between blood and lung in ms -> depends on heartbeat
       
             parameters["pa_o2_alv"] = "100";                        // partialpressure oxygen in alveolar gas, in mmHg ->updated by us 
@@ -70,7 +70,7 @@ namespace HumanBodySimulation
             parameters["pa_co2_blood_art"] = "46";                  // partialpressure Co2 in arterial blood high co2 -> this value is updated by other organs
 
             parameters["breathing_frequency"] = "12.0";             // baseline breathing frequency in 1/min -> updated by us
-            parameters["tidalvolume"] = "350";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
+            parameters["tidalvolume"] = "300";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
             parameters["residual_functional_volume"] = "3000";       // maximum volume of lung in liters remains in lung after breathing -> constant for now
 
             parameters["SPO2Heartbeat"] = "97";
@@ -152,13 +152,24 @@ namespace HumanBodySimulation
             double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
-            //calc new partialpressures
+            //calc new partialpressures+
 
+       
             pa_o2_alv = (o2_volume_alv - exchanged_volume_o2) * p_ges / residual_functional_volume;
             pa_co2_alv = (co2_volume_alv + exchanged_volume_co2) * p_ges / residual_functional_volume;
             SO2 = (o2_volume_alv_blood + exchanged_volume_o2) / (Hb * 1.39);  // new oxygen saturation
             pa_o2_blood_alv = 26 * Math.Pow((SO2 / (1 - SO2)),(1 / 2.7));
             pa_co2_blood_alv = Math.Exp((Math.Log(co2_volume_alv_blood - exchanged_volume_co2) - 2.38) / 0.396);
+
+            if (pa_o2_alv - pa_o2_blood_alv < 0)
+            {
+                pa_o2_blood_alv = pa_o2_alv; //avoids overshooting:pa_o2_blood_alv must not be higher than pa_o2_alv
+            }
+
+            if (pa_co2_alv - pa_co2_blood_alv > 0)
+            {
+                pa_co2_blood_alv = pa_co2_alv; //avoids overshooting:pa_o2_blood_alv must not be higher than pa_o2_alv
+            }
 
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
@@ -202,7 +213,7 @@ namespace HumanBodySimulation
 
                 writer.Write(parameters["pa_o2_blood_alv"]);
 
-                writer.Write(',');
+                writer.Write(';');
 
                 writer.Write(parameters["pa_co2_alv"]);
 
