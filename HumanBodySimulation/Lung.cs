@@ -49,11 +49,7 @@ namespace HumanBodySimulation
         {
             parameters["time_next_breath"] = "5000";                // time to next breathing event in ms ->updated by us
             parameters["time_contact"] = "1000";                    // contct time between blood and lung in ms -> depends on heartbeat
-
-            parameters["pa_o2_insp"] = "160";                       // partialpressure oxygen in inspiratory gas, in mmHg -> constant sorrounding air
-            parameters["pa_co2_insp"] = "0.25";                     // partialpressure Co2 in inspiratory gas, in mmHg ->constant sorroundung air
-            parameters["pa_o2_exp"] = "";                           // partialpressure oxygen in exspiratory gas, in mmHg  ->irrelevant?
-            parameters["pa_co2_exp"] = "";                          // partialpressure Co2 in exspratory gas, in mmHg -> irrelevant?
+      
             parameters["pa_o2_alv"] = "100";                        // partialpressure oxygen in alveolar gas, in mmHg ->updated by us 
             parameters["pa_co2_alv"] = "40";                        // partialpressure Co2 in alveolar gas, in mmHg -> updated by us
 
@@ -66,14 +62,8 @@ namespace HumanBodySimulation
 
             parameters["breathing_frequency"] = "12.0";             // baseline breathing frequency in 1/min -> updated by us
             parameters["tidalvolume"] = "350";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
-            parameters["residual_functional_volume"] = "3000";       // maximum volume of lung in liters remains in lung after breathing -> connstant for now
+            parameters["residual_functional_volume"] = "3000";       // maximum volume of lung in liters remains in lung after breathing -> constant for now
 
-            parameters["HTV"] = "5.0";                              // heart time volume in L/min, calc from bpm and volume of heart -maybe?
-
-            parameters["SPO2"] = "0.97";                              //initial value in %
-            parameters["exchanged_volume_o2"] = "0";
-            parameters["o2_volume_alv"] = "400";
-            parameters["SPO2Percent"] = "97";
             parameters["SPO2Heartbeat"] = "97";
 
         }
@@ -85,16 +75,14 @@ namespace HumanBodySimulation
 
             double pa_o2_alv = double.Parse(parameters["pa_o2_alv"]);
             double pa_co2_alv = double.Parse(parameters["pa_co2_alv"]);
-            double pa_o2_insp = double.Parse(parameters["pa_o2_insp"]);
-            double pa_Co2_insp = double.Parse(parameters["pa_co2_insp"]);
+            double pa_o2_insp = 160; // partialpressure oxygen in inspiratory gas, in mmHg -> constant sorrounding air
+            double pa_Co2_insp = 0.25; // partialpressure Co2 in inspiratory gas, in mmHg ->constant sorroundung air
 
             double pa_o2_blood_alv = double.Parse(parameters["pa_o2_blood_alv"]);
             double pa_co2_blood_alv = double.Parse(parameters["pa_co2_blood_alv"]);
             double pa_o2_blood_art = double.Parse(parameters["pa_o2_blood_art"]);
             double pa_co2_blood_art = double.Parse(parameters["pa_co2_blood_art"]);
             double SPO2Heartbeat = double.Parse(parameters["SPO2Heartbeat"]);
-
-            //double pa_Co2_blood_in = double.Parse(parameters["pa_co2"]);
 
             double tidalvolume = double.Parse(parameters["tidalvolume"]);
             double residual_functional_volume = double.Parse(parameters["residual_functional_volume"]);
@@ -106,7 +94,7 @@ namespace HumanBodySimulation
             double p_ges = 760;            //surrounding pressure in mmHg / equal at alveolar level
             double D_o2 = 0.000004167; // diffusion constant of oxygen/ co2 
             double D_co2 = 23 * D_o2;           // diffusion of Co2 ist 23 times higher 
-            double Hb = 15; // g/100 ml
+            double Hb = 15; // Haemoglobin concentration [g/100 ml]
 
             double exchanged_volume_o2 = 50;
 
@@ -142,7 +130,7 @@ namespace HumanBodySimulation
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
             exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
-            double exchanged_volume_co2 = (D_co2 * A * (pa_co2_alv - pa_co2_blood_alv) / 760/dx) * n / 1000;
+            double exchanged_volume_co2 = (D_co2 * A * ((pa_co2_alv - pa_co2_blood_alv) / 760) / dx) * n / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -152,8 +140,6 @@ namespace HumanBodySimulation
 
 
             double SO2 = SPO2Calc(pa_o2_blood_alv);
-        
-
             double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
