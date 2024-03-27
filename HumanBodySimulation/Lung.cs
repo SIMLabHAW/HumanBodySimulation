@@ -19,6 +19,15 @@ namespace HumanBodySimulation
 
         }
 
+        public double breathingperiod(double pa_co2_alv)
+        {
+            double k = 1;
+            int ref_co2 = 40;
+            double breathingfrequency = 12 + k * (pa_co2_alv - ref_co2);
+            return 1000 / (breathingfrequency / 60); // in ms
+
+        }
+
         public double SPO2Calc(double pa_o2_blood_alv)
         {
             double n_haemo = 2.7; //Hill coefficient for haemoglobin
@@ -70,7 +79,7 @@ namespace HumanBodySimulation
         public void update(int n, Dictionary<string, string> parameters)
         {
             // Parameter
-            int time_next_breath = int.Parse(parameters["time_next_breath"]);
+            double time_next_breath = double.Parse(parameters["time_next_breath"]);
             int time_contact = int.Parse(parameters["time_contact"]);
 
             double pa_o2_alv = double.Parse(parameters["pa_o2_alv"]);
@@ -105,7 +114,7 @@ namespace HumanBodySimulation
 
             if (time_next_breath <= 0) {
 
-                time_next_breath = 5000; // ToDO implement breathing frequency / updated breathing frequency -> new time according to our calc
+                time_next_breath = breathingperiod(pa_co2_alv); // ToDO implement breathing frequency / updated breathing frequency -> new time according to our calc
 
                 pa_o2_alv = set_pa_O2_alv_breath(tidalvolume, residual_functional_volume, pa_o2_alv, pa_o2_insp);
                 pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
