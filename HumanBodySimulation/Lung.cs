@@ -56,7 +56,7 @@ namespace HumanBodySimulation
 
         public void init(Dictionary<string, string> parameters)
         {
-            parameters["time_next_breath"] = "5000";                // time to next breathing event in ms ->updated by us
+            parameters["time_next_breath"] = "0";                // time to next breathing event in ms ->updated by us
             parameters["time_contact"] = "1000";                    // contct time between blood and lung in ms -> depends on heartbeat
       
             parameters["pa_o2_alv"] = "100";                        // partialpressure oxygen in alveolar gas, in mmHg ->updated by us 
@@ -139,7 +139,7 @@ namespace HumanBodySimulation
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
             exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
-            double exchanged_volume_co2 = (D_co2 * A * ((pa_co2_alv - pa_co2_blood_alv) / 760) / dx) * n / 1000;
+            double exchanged_volume_co2 = (D_co2 * A * ((pa_co2_blood_alv- pa_co2_alv) / 760) / dx) * n / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -183,8 +183,36 @@ namespace HumanBodySimulation
             string csvFilePath = "D:/LungValueValidation.csv";
 
             using (StreamWriter writer = new StreamWriter(csvFilePath, true))
-            {
-                writer.WriteLine(parameters["SPO2Heartbeat"]);
+            {               
+                writer.Write(parameters["SPO2Heartbeat"]);
+
+                writer.Write(';');
+
+                writer.Write(parameters["time_next_breath"]);
+
+                writer.Write(';');
+
+                writer.Write(parameters["time_contact"]);
+
+                writer.Write(';');
+
+                writer.Write(parameters["pa_o2_alv"]);
+
+                writer.Write(';');
+
+                writer.Write(parameters["pa_o2_blood_alv"]);
+
+                writer.Write(',');
+
+                writer.Write(parameters["pa_co2_alv"]);
+
+                writer.Write(';');
+
+                writer.Write(parameters["pa_co2_blood_alv"]);
+
+                //writer.Write(',');
+
+                writer.WriteLine();
             }
 
             return;
