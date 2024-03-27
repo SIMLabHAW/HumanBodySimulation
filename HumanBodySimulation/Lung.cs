@@ -19,9 +19,18 @@ namespace HumanBodySimulation
 
         }
 
+        public double randomizer(double con_parameter, int seed)
+        {
+            Random random = new Random();
+
+            int percent =(int) random.Next(0, seed);
+            int sign=(int) random.Next(0, 1);
+            return con_parameter * (1 + sign * percent / 100);
+        }
+
         public double breathingperiod(double pa_co2_alv)
         {
-            double k = 1;
+            double k = randomizer(1,5);
             int ref_co2 = 40;
             double breathingfrequency = 12 + k * (pa_co2_alv - ref_co2);
             return 1000 / (breathingfrequency / 60); // in ms
@@ -31,7 +40,7 @@ namespace HumanBodySimulation
         public double SPO2Calc(double pa_o2_blood_alv)
         {
             double n_haemo = 2.7; //Hill coefficient for haemoglobin
-            double k_d = 26; //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
+            double k_d = randomizer(26,10); //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
             double PAO2n = Math.Pow(pa_o2_blood_alv, n_haemo); //must be in mmHg
             double k_d_n = Math.Pow(k_d, n_haemo);
             return PAO2n / (k_d_n + PAO2n);
@@ -70,7 +79,7 @@ namespace HumanBodySimulation
             parameters["pa_co2_blood_art"] = "46";                  // partialpressure Co2 in arterial blood high co2 -> this value is updated by other organs
 
             parameters["breathing_frequency"] = "12.0";             // baseline breathing frequency in 1/min -> updated by us
-            parameters["tidalvolume"] = "300";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
+            parameters["tidalvolume"] = "250";                     // liters per breath, insp and exp -> spontaneous breathing constant oscillation
             parameters["residual_functional_volume"] = "3000";       // maximum volume of lung in liters remains in lung after breathing -> constant for now
 
             parameters["SPO2Heartbeat"] = "97";
@@ -105,9 +114,6 @@ namespace HumanBodySimulation
             double D_co2 = 23 * D_o2;           // diffusion of Co2 ist 23 times higher 
             double Hb = 15; // Haemoglobin concentration [g/100 ml]
 
-            double exchanged_volume_o2 = 50;
-
-
             //check for breath, update alveolar partial pressures if breath happened, update time to next breathing event
 
             time_next_breath = time_next_breath - n;
@@ -130,15 +136,20 @@ namespace HumanBodySimulation
                 time_contact = 1000; //ToDo implement heratbeat -> new time according to actual bpm
 
                 SPO2Heartbeat = (int)Math.Round(SPO2Calc(pa_o2_blood_alv) * 100);
-                double pa_o2_blood_ven = pa_o2_blood_alv;
-                double pa_co2_blood_ven = pa_co2_blood_alv;
+
+                parameters["pa_o2_blood_ven"] = pa_o2_blood_alv.ToString();
+                parameters["pa_co2_blood_ven"] = pa_co2_blood_alv.ToString();
+
+                pa_o2_blood_art = randomizer(pa_o2_blood_art,10);
+                pa_co2_blood_art = randomizer(pa_co2_blood_art,10);
+
                 pa_o2_blood_alv = pa_o2_blood_art;
                 pa_co2_blood_alv = pa_co2_blood_art; 
             }
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
-            exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
+            double exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
             double exchanged_volume_co2 = (D_co2 * A * ((pa_co2_blood_alv- pa_co2_alv) / 760) / dx) * n / 1000;
 
             // calculate new partialpressures in blood + lung - update blood values - update 
