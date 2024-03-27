@@ -74,6 +74,7 @@ namespace HumanBodySimulation
             parameters["exchanged_volume_o2"] = "0";
             parameters["o2_volume_alv"] = "400";
             parameters["SPO2Percent"] = "97";
+            parameters["SPO2Heartbeat"] = "97";
 
         }
         public void update(int n, Dictionary<string, string> parameters)
@@ -91,6 +92,7 @@ namespace HumanBodySimulation
             double pa_co2_blood_alv = double.Parse(parameters["pa_co2_blood_alv"]);
             double pa_o2_blood_art = double.Parse(parameters["pa_o2_blood_art"]);
             double pa_co2_blood_art = double.Parse(parameters["pa_co2_blood_art"]);
+            double SPO2Heartbeat = double.Parse(parameters["SPO2Heartbeat"]);
 
             //double pa_Co2_blood_in = double.Parse(parameters["pa_co2"]);
 
@@ -130,12 +132,11 @@ namespace HumanBodySimulation
 
                 time_contact = 1000; //ToDo implement heratbeat -> new time according to actual bpm
 
+                SPO2Heartbeat = (int)Math.Round(SPO2Calc(pa_o2_blood_alv) * 100);
                 double pa_o2_blood_ven = pa_o2_blood_alv;
                 double pa_co2_blood_ven = pa_co2_blood_alv;
                 pa_o2_blood_alv = pa_o2_blood_art;
-                pa_co2_blood_alv = pa_co2_blood_art;
-                double SPO2Heartbeat = SPO2Calc(pa_o2_blood_alv);
-
+                pa_co2_blood_alv = pa_co2_blood_art; 
             }
 
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
@@ -150,42 +151,37 @@ namespace HumanBodySimulation
             double co2_volume_alv = residual_functional_volume * (pa_co2_alv / p_ges);
 
 
-            double SPO2 = SPO2Calc(pa_o2_blood_alv);
+            double SO2 = SPO2Calc(pa_o2_blood_alv);
         
 
-            double o2_volume_alv_blood = SPO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
+            double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
             //calc new partialpressures
 
             pa_o2_alv = (o2_volume_alv - exchanged_volume_o2) * p_ges / residual_functional_volume;
             pa_co2_alv = (co2_volume_alv + exchanged_volume_co2) * p_ges / residual_functional_volume;
-            SPO2 = (o2_volume_alv_blood + exchanged_volume_o2) / (Hb * 1.39);  // new oxygen saturation
-            int SPO2Percent = (int)Math.Round(SPO2 * 100);
-            pa_o2_blood_alv = 26 * Math.Pow((SPO2 / (1 - SPO2)),(1 / 2.7));
-
+            SO2 = (o2_volume_alv_blood + exchanged_volume_o2) / (Hb * 1.39);  // new oxygen saturation
+            pa_o2_blood_alv = 26 * Math.Pow((SO2 / (1 - SO2)),(1 / 2.7));
             pa_co2_blood_alv = Math.Exp((Math.Log(co2_volume_alv_blood - exchanged_volume_co2) - 2.38) / 0.396);
 
 
             //set partial pressures of O2 and Co2 / update parameter dictionary
             parameters["pa_o2_alv"] = pa_o2_alv.ToString();
             parameters["pa_co2_alv"] = pa_co2_alv.ToString();
-            parameters["pa_o2_insp"] = pa_o2_insp.ToString();
-            parameters["pa_Co2_insp"] = pa_Co2_insp.ToString();
+
             parameters["pa_o2_blood_alv"] = pa_o2_blood_alv.ToString();
             parameters["pa_co2_blood_alv"] = pa_co2_blood_alv.ToString();
+
             parameters["pa_o2_blood_art"] = pa_o2_blood_art.ToString();
             parameters["pa_co2_blood_art"] = pa_co2_blood_art.ToString();
-            parameters["pa_co2_alv"] = pa_co2_alv.ToString();
+
 
             parameters["time_next_breath"] = time_next_breath.ToString();
             parameters["time_contact"] = time_contact.ToString();
 
-            parameters["SPO2"] = SPO2.ToString();
-            parameters["SPO2Percent"] = SPO2Percent.ToString();
-            //parameters["SPO2Heartbeat"] = SPO2Heartbeat.ToString();
-            parameters["exchanged_volume_o2"] = exchanged_volume_o2.ToString();
-            parameters["o2_volume_alv"] = o2_volume_alv.ToString();
+            parameters["SPO2Heartbeat"] = SPO2Heartbeat.ToString();
+
 
             //validation --> plot values
 
