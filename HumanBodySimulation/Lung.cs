@@ -34,7 +34,6 @@ namespace HumanBodySimulation
             int ref_co2 = 40;
             double breathingfrequency = 12 + k * (pa_co2_alv - ref_co2);
             return 1000 / (breathingfrequency / 60); // in ms
-
         }
 
         public double SPO2Calc(double pa_o2_blood_alv)
@@ -54,11 +53,11 @@ namespace HumanBodySimulation
 
         }
 
-        static double set_pa_Co2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_Co2, double pa_Co2_insp)
+        static double set_pa_Co2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_Co2, double pa_co2_insp)
         {
             //  updates partial pressures of  Co2 through breathing
 
-            return (residual_functional_volume * pa_alv_Co2 + tidalvolume * pa_Co2_insp) / (residual_functional_volume + tidalvolume);
+            return (residual_functional_volume * pa_alv_Co2 + tidalvolume * pa_co2_insp) / (residual_functional_volume + tidalvolume);
 
         }
 
@@ -93,7 +92,7 @@ namespace HumanBodySimulation
             double pa_o2_alv = double.Parse(parameters["pa_o2_alv"]);
             double pa_co2_alv = double.Parse(parameters["pa_co2_alv"]);
             double pa_o2_insp = 160; // partialpressure oxygen in inspiratory gas, in mmHg -> constant sorrounding air
-            double pa_Co2_insp = 0.25; // partialpressure Co2 in inspiratory gas, in mmHg ->constant sorroundung air
+            double pa_co2_insp = 0.25; // partialpressure Co2 in inspiratory gas, in mmHg ->constant sorroundung air
 
             double pa_o2_blood_alv = double.Parse(parameters["pa_o2_blood_alv"]);
             double pa_co2_blood_alv = double.Parse(parameters["pa_co2_blood_alv"]);
@@ -119,10 +118,10 @@ namespace HumanBodySimulation
 
             if (time_next_breath <= 0) {
 
-                time_next_breath = breathingperiod(pa_co2_alv); // ToDo implement breathing frequency / updated breathing frequency -> new time according to our calc
+                time_next_breath = breathingperiod(pa_co2_alv); 
 
                 pa_o2_alv = set_pa_O2_alv_breath(tidalvolume, residual_functional_volume, pa_o2_alv, pa_o2_insp);
-                pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
+                pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_co2_insp);
             }
 
 
@@ -162,7 +161,7 @@ namespace HumanBodySimulation
             double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
-            //calc new partialpressures+
+            //calc new partial pressures
 
        
             pa_o2_alv = (o2_volume_alv - exchanged_volume_o2) * p_ges / residual_functional_volume;
