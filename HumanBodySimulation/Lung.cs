@@ -46,7 +46,6 @@ namespace HumanBodySimulation
             return PAO2n / (k_d_n + PAO2n);
         }
 
-
         static double set_pa_O2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_o2, double pa_o2_insp)
         {
             // updates partial pressures of O2 through breathing
@@ -120,7 +119,7 @@ namespace HumanBodySimulation
 
             if (time_next_breath <= 0) {
 
-                time_next_breath = breathingperiod(pa_co2_alv); // ToDO implement breathing frequency / updated breathing frequency -> new time according to our calc
+                time_next_breath = breathingperiod(pa_co2_alv); // ToDo implement breathing frequency / updated breathing frequency -> new time according to our calc
 
                 pa_o2_alv = set_pa_O2_alv_breath(tidalvolume, residual_functional_volume, pa_o2_alv, pa_o2_insp);
                 pa_co2_alv = set_pa_Co2_alv_breath(tidalvolume, residual_functional_volume, pa_co2_alv, pa_Co2_insp);
@@ -140,8 +139,8 @@ namespace HumanBodySimulation
                 parameters["pa_o2_blood_ven"] = pa_o2_blood_alv.ToString();
                 parameters["pa_co2_blood_ven"] = pa_co2_blood_alv.ToString();
 
-                pa_o2_blood_art = randomizer(pa_o2_blood_art,10);
-                pa_co2_blood_art = randomizer(pa_co2_blood_art,10);
+                pa_o2_blood_art = randomizer(40,10);
+                pa_co2_blood_art = randomizer(46,10);
 
                 pa_o2_blood_alv = pa_o2_blood_art;
                 pa_co2_blood_alv = pa_co2_blood_art; 
