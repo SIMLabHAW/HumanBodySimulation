@@ -19,15 +19,26 @@ namespace HumanBodySimulation
 
         }
 
+        /// <summary>
+        /// This function randomizes a parameter adding dynamics to it.
+        /// </summary>
+        /// <param name="con_parameter">parameter that will be randomized</param>
+        /// <param name="seed">percentage of +- deviation </param>
+        /// <returns></returns>
         public double randomizer(double con_parameter, int seed)
         {
             Random random = new Random();
 
-            int percent =(int) random.Next(0, seed);
-            int sign=(int) random.Next(0, 1);
+            int percent =(int) random.Next(0, seed); //random deviation in percentage within seed range
+            int sign=(int) random.Next(0, 1); //determines the sign of the deviation
             return con_parameter * (1 + sign * percent / 100);
         }
 
+        /// <summary>
+        /// Calculates a breathingfrequency based on current paCO2 that is converted into a breathing period
+        /// </summary>
+        /// <param name="pa_co2_alv"> current partial pressure of CO2 in the alveoli</param>
+        /// <returns></returns>
         public double breathingperiod(double pa_co2_alv)
         {
             double k = randomizer(1,5);
@@ -36,15 +47,28 @@ namespace HumanBodySimulation
             return 1000 / (breathingfrequency / 60); // in ms
         }
 
+        /// <summary>
+        /// This function calculates the O2 saturation in the alveolar blood
+        /// </summary>
+        /// <param name="pa_o2_blood_alv">partial pressure of oxygen in the alveolar blood</param>
+        /// <returns></returns>
         public double SPO2Calc(double pa_o2_blood_alv)
         {
             double n_haemo = 2.7; //Hill coefficient for haemoglobin
-            double k_d = randomizer(26,10); //Dissociation constant representing temperature, pH, co2 factor regarding o2 saturation //pCO2 impacts k_d value
+            double k_d = randomizer(26,10); //Dissociation constant radomized
             double PAO2n = Math.Pow(pa_o2_blood_alv, n_haemo); //must be in mmHg
             double k_d_n = Math.Pow(k_d, n_haemo);
             return PAO2n / (k_d_n + PAO2n);
         }
 
+        /// <summary>
+        /// Sets partial pressure of oxygen in the alveoli according to the values after breathing in
+        /// </summary>
+        /// <param name="tidalvolume">volume being inspirated</param>
+        /// <param name="residual_functional_volume">total volume available for respiration</param>
+        /// <param name="pa_alv_o2">partial pressure of oxygen in the alveoli</param>
+        /// <param name="pa_o2_insp">partial pressure of oxygen in the lung</param>
+        /// <returns></returns>
         static double set_pa_O2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_o2, double pa_o2_insp)
         {
             // updates partial pressures of O2 through breathing
@@ -52,7 +76,14 @@ namespace HumanBodySimulation
             return (residual_functional_volume * pa_alv_o2 + tidalvolume * pa_o2_insp) / (residual_functional_volume + tidalvolume);
 
         }
-
+        /// <summary>
+        /// Sets partial pressure of CO2 in the alveoli according to the values after breathing in
+        /// </summary>
+        /// <param name="tidalvolume">volume being inspirated</param>
+        /// <param name="residual_functional_volume">total volume available for respiration</param>
+        /// <param name="pa_alv_o2">partial pressure of oxygen in the alveoli</param>
+        /// <param name="pa_o2_insp">partial pressure of oxygen in the lung</param>
+        /// <returns></returns>
         static double set_pa_Co2_alv_breath(double tidalvolume, double residual_functional_volume, double pa_alv_Co2, double pa_co2_insp)
         {
             //  updates partial pressures of  Co2 through breathing
@@ -61,6 +92,10 @@ namespace HumanBodySimulation
 
         }
 
+        /// <summary>
+        /// Initilization of the dictionary, where pulmonary parameters are stored
+        /// </summary>
+        /// <param name="parameters">parameter dictionary</param>
         public void init(Dictionary<string, string> parameters)
         {
             parameters["time_next_breath"] = "5000";                // time to next breathing event in ms ->updated by us
@@ -83,6 +118,11 @@ namespace HumanBodySimulation
             parameters["SPO2Heartbeat"] = "97";
 
         }
+        /// <summary>
+        /// modifies and computes parameters, which then updates the dictionary
+        /// </summary>
+        /// <param name="n">stepsize of simulation</param>
+        /// <param name="parameters">parameter dictionary, where pulmonary parameters are stored</param>
         public void update(int n, Dictionary<string, string> parameters)
         {
             // Parameter
@@ -131,7 +171,7 @@ namespace HumanBodySimulation
 
             if (time_contact <= 0) {
 
-                time_contact = 1000; //ToDo implement heratbeat -> new time according to actual bpm
+                time_contact = 1000; 
 
                 SPO2Heartbeat = (int)Math.Round(SPO2Calc(pa_o2_blood_alv) * 100);
 
@@ -145,10 +185,12 @@ namespace HumanBodySimulation
                 pa_co2_blood_alv = pa_co2_blood_art; 
             }
 
+
             //calculate exchanged volumes of gas based on magic formula, ficks law, since last update from main function
 
             double exchanged_volume_o2 = (D_o2 * A * ((pa_o2_alv - pa_o2_blood_alv) / 760) / dx) * n / 1000;      //volume flow -> in m³ (*n / 1000 due to n is in ms) of O2 and Co2
             double exchanged_volume_co2 = (D_co2 * A * ((pa_co2_blood_alv- pa_co2_alv) / 760) / dx) * n / 1000;
+
 
             // calculate new partialpressures in blood + lung - update blood values - update 
 
@@ -156,19 +198,18 @@ namespace HumanBodySimulation
             double o2_volume_alv = residual_functional_volume * (pa_o2_alv / p_ges);
             double co2_volume_alv = residual_functional_volume * (pa_co2_alv / p_ges);
 
-
             double SO2 = SPO2Calc(pa_o2_blood_alv);
-            double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation PAO2*0.0003 is neglected in the formula
+            double o2_volume_alv_blood = SO2 * Hb * 1.39; // volume diluted in blood - based on oxygen saturation // PAO2*0.0003 is neglected in the formula
             double co2_volume_alv_blood = Math.Exp((0.396 * Math.Log(pa_co2_blood_alv)) + 2.38);
 
-            //calc new partial pressures
 
-       
+            //calc new partial pressures based on the volumes in the alveoli and alveolar blood
             pa_o2_alv = (o2_volume_alv - exchanged_volume_o2) * p_ges / residual_functional_volume;
             pa_co2_alv = (co2_volume_alv + exchanged_volume_co2) * p_ges / residual_functional_volume;
             SO2 = (o2_volume_alv_blood + exchanged_volume_o2) / (Hb * 1.39);  // new oxygen saturation
             pa_o2_blood_alv = 26 * Math.Pow((SO2 / (1 - SO2)),(1 / 2.7));
             pa_co2_blood_alv = Math.Exp((Math.Log(co2_volume_alv_blood - exchanged_volume_co2) - 2.38) / 0.396);
+
 
             if (pa_o2_alv - pa_o2_blood_alv < 0)
             {
@@ -198,9 +239,9 @@ namespace HumanBodySimulation
             parameters["SPO2Heartbeat"] = SPO2Heartbeat.ToString();
 
 
-            //validation --> plot values
+            //validation -> plot values in a csv-file
 
-            string csvFilePath = "D:/LungValueValidation.csv";
+            string csvFilePath = "D:/LungValueValidation2.csv";
 
             using (StreamWriter writer = new StreamWriter(csvFilePath, true))
             {               
@@ -230,7 +271,6 @@ namespace HumanBodySimulation
 
                 writer.Write(parameters["pa_co2_blood_alv"]);
 
-                //writer.Write(',');
 
                 writer.WriteLine();
             }
